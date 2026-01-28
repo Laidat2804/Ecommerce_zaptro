@@ -71,14 +71,14 @@ const Navbar = ({ location, getLocation, openDropdown, setOpenDropdown }) => {
     <div className="bg-white py-2 md:py-3 shadow-2xl px-4 md:px-0">
       <div className="max-w-6xl mx-auto flex justify-between items-center gap-3 md:gap-7">
         {/* logo section */}
-        <div className="flex gap-2 md:gap-7 items-center flex-shrink-0">
+        <div className="flex gap-2 md:gap-7 items-center shrink-0">
           <Link to={"/"}>
             <h1 className="font-bold text-xl md:text-3xl">
               <span className="text-red-500 font-serif">Z</span>aptro
             </h1>
           </Link>
           <div className="md:flex gap-1 cursor-pointer text-gray-700 items-center hidden text-sm lg:text-base">
-            <MapPin className="text-red-500 flex-shrink-0" size={18} />
+            <MapPin className="text-red-500 shrink-0" size={18} />
             <span className="font-semibold ">
               {location ? (
                 <div className="-space-y-2 text-xs lg:text-sm">
@@ -162,19 +162,19 @@ const Navbar = ({ location, getLocation, openDropdown, setOpenDropdown }) => {
           </ul>
           <SignedIn>
             <div className="flex items-center gap-2 md:gap-4">
-              <Link to={"/wishlist"} className="relative flex-shrink-0">
+              <Link to={"/wishlist"} className="relative shrink-0">
                 <Heart className="h-5 w-5 md:h-6 md:w-6 hover:text-red-500 transition-colors" />
                 <span className="bg-red-500 px-1.5 md:px-2 rounded-full absolute -top-3 -right-3 text-white text-xs font-bold">
                   {wishlistItems.length}
                 </span>
               </Link>
-              <Link to={"/orders"} className="relative flex-shrink-0">
+              <Link to={"/orders"} className="relative shrink-0">
                 <Receipt className="h-5 w-5 md:h-6 md:w-6 hover:text-red-500 transition-colors" />
                 <span className="bg-red-500 px-1.5 md:px-2 rounded-full absolute -top-3 -right-3 text-white text-xs font-bold">
                   {orderCount}
                 </span>
               </Link>
-              <Link to={"/cart"} className="relative flex-shrink-0">
+              <Link to={"/cart"} className="relative shrink-0">
                 <IoCartOutline className="h-6 w-6 md:h-7 md:w-7" />
                 <span className="bg-red-500 px-1.5 md:px-2 rounded-full absolute -top-3 -right-3 text-white text-xs font-bold">
                   {cartItem.length}
@@ -193,12 +193,12 @@ const Navbar = ({ location, getLocation, openDropdown, setOpenDropdown }) => {
           {openNav ? (
             <HiMenuAlt3
               onClick={() => setOpenNav(false)}
-              className="h-6 w-6 md:hidden flex-shrink-0"
+              className="h-6 w-6 md:hidden shrink-0"
             />
           ) : (
             <HiMenuAlt1
               onClick={() => setOpenNav(true)}
-              className="h-6 w-6 md:hidden flex-shrink-0"
+              className="h-6 w-6 md:hidden shrink-0"
             />
           )}
         </nav>
