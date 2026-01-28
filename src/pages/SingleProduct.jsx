@@ -4,7 +4,7 @@ import { useParams } from "react-router-dom";
 import Loading from "../assets/Loading4.webm";
 import { IoCartOutline } from "react-icons/io5";
 import { useCart } from "../context/useCart";
-import Breadcrums from "../components/BreadCums";
+import Breadcrums from "../components/Breadcums";
 import ReviewSection from "../components/ReviewSection";
 
 const SingleProduct = () => {
