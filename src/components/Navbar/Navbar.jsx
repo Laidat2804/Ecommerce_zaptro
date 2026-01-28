@@ -16,7 +16,7 @@ import { useCart } from "../../context/useCart";
 import { useWishlist } from "../../context/useWishlist";
 import { useOrderHistory } from "../../context/useOrderHistory";
 import { HiMenuAlt1, HiMenuAlt3 } from "react-icons/hi";
-import ResponsiveMenu from "../Responsivemenu";
+import ResponsiveMenu from "../ResponsiveMenu";
 
 const Navbar = ({ location, getLocation, openDropdown, setOpenDropdown }) => {
   const { cartItem } = useCart();
