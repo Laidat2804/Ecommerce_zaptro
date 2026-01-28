@@ -1,0 +1,7 @@
+@import "tailwindcss";
+
+/* Định dạng Avatar của Clerk */
+.cl-avatarBox {
+  width: 40px;
+  margin: 1px;
+}
