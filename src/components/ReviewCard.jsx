@@ -1,12 +1,8 @@
 import React from "react";
 import { Star, User } from "lucide-react";
 
-/**
- * ReviewCard Component
- * Displays individual product review with rating, comment, and user info
- */
 const ReviewCard = ({ review }) => {
-  const { author, rating, comment, date, verified } = review;
+  const { author, rating, comment, date } = review;
 
   return (
     <div className="border-b border-gray-200 pb-4 mb-4 last:border-b-0">
@@ -22,11 +18,7 @@ const ReviewCard = ({ review }) => {
             </p>
           </div>
         </div>
-        {verified && (
-          <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">
-            ✓ Verified Purchase
-          </span>
-        )}
+        {/* Đã xóa phần hiển thị Verified Purchase tại đây */}
       </div>
 
       {/* Rating Stars */}
@@ -40,15 +32,10 @@ const ReviewCard = ({ review }) => {
             }
           />
         ))}
-        <span className="ml-2 text-sm font-semibold text-gray-700">
-          {rating}/5
-        </span>
       </div>
 
       {/* Review Title & Comment */}
-      {comment && (
-        <p className="text-gray-700 text-sm leading-relaxed">{comment}</p>
-      )}
+      <p className="text-gray-700 text-sm leading-relaxed">{comment}</p>
     </div>
   );
 };

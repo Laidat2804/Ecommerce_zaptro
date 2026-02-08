@@ -1,18 +1,16 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { FaRegTrashAlt } from "react-icons/fa";
 import { LuNotebookText } from "react-icons/lu";
 import { MdDeliveryDining } from "react-icons/md";
 import { GiShoppingBag } from "react-icons/gi";
-// import { useUser } from "@clerk/clerk-react";
 import { useNavigate } from "react-router-dom";
 import emptyCart from "../assets/empty-cart.png";
-import { useCart } from "../context/useCart";
 import { useCheckout } from "../hooks/useCheckout";
 import { toast } from "react-toastify";
+import { CartContext } from "../context/contexts";
 
 const Cart = () => {
-  const { cartItem, updateQuantity, deleteItem } = useCart();
-  // const { user } = useUser();
+  const { cartItem, updateQuantity, deleteItem } = useContext(CartContext);
   const navigate = useNavigate();
   const { handleCheckout, isProcessing } = useCheckout();
 
@@ -25,16 +23,14 @@ const Cart = () => {
     phoneNo: "",
   });
 
+  const { fullName, address, city, postCode, country, phoneNo } = deliveryInfo;
+
   const totalPrice = cartItem.reduce(
     (total, item) => total + item.price * item.quantity,
     0,
   );
 
-  // Hàm validate form
   const validateForm = () => {
-    const { fullName, address, city, postCode, country, phoneNo } =
-      deliveryInfo;
-
     if (
       !fullName.trim() ||
       !address.trim() ||
@@ -47,7 +43,6 @@ const Cart = () => {
       return false;
     }
 
-    // Kiểm tra số điện thoại
     if (!/^[0-9]{10,}$/.test(phoneNo.replace(/\s+/g, ""))) {
       toast.error("Invalid phone number (minimum 10 digits)!");
       return false;
@@ -56,7 +51,6 @@ const Cart = () => {
     return true;
   };
 
-  // Hàm xử lý thay đổi input
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setDeliveryInfo((prev) => ({
@@ -65,7 +59,6 @@ const Cart = () => {
     }));
   };
 
-  // Hàm xử lý checkout với validation
   const handleCheckoutWithValidation = async () => {
     if (validateForm()) {
       await handleCheckout();
@@ -90,7 +83,7 @@ const Cart = () => {
                       <img
                         src={item?.images?.[0] || item?.thumbnail}
                         alt={item.title}
-                        className="w-16 h-16 sm:w-20 sm:h-20 rounded-md flex-shrink-0"
+                        className="w-16 h-16 sm:w-20 sm:h-20 rounded-md shrink-0"
                       />
                       <div className="min-w-0 flex-1">
                         <h1 className="md:w-75 line-clamp-2 text-sm md:text-base">
@@ -104,9 +97,7 @@ const Cart = () => {
                     <div className="flex items-center gap-2 sm:gap-4 flex-wrap">
                       <div className="bg-red-500 text-white flex gap-2 sm:gap-4 p-1 md:p-2 rounded-md font-bold text-sm md:text-xl">
                         <button
-                          onClick={() =>
-                            updateQuantity(cartItem, item.id, "decrease")
-                          }
+                          onClick={() => updateQuantity(item.id, "decrease")}
                           className="cursor-pointer w-6 h-6 flex items-center justify-center"
                         >
                           -
@@ -115,9 +106,7 @@ const Cart = () => {
                           {item.quantity}
                         </span>
                         <button
-                          onClick={() =>
-                            updateQuantity(cartItem, item.id, "increase")
-                          }
+                          onClick={() => updateQuantity(item.id, "increase")}
                           className="cursor-pointer w-6 h-6 flex items-center justify-center"
                         >
                           +
@@ -125,7 +114,7 @@ const Cart = () => {
                       </div>
                       <span
                         onClick={() => deleteItem(item.id)}
-                        className="hover:bg-white/60 transition-all rounded-full p-2 md:p-3 hover:shadow-2xl flex-shrink-0"
+                        className="hover:bg-white/60 transition-all rounded-full p-2 md:p-3 hover:shadow-2xl shrink-0"
                       >
                         <FaRegTrashAlt className="text-red-500 text-lg md:text-2xl cursor-pointer" />
                       </span>
@@ -134,6 +123,8 @@ const Cart = () => {
                 );
               })}
             </div>
+
+            {/* Các ô input */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8 lg:gap-20">
               <div className="bg-gray-100 rounded-md p-4 md:p-7 mt-4 space-y-3">
                 <h1 className="text-gray-800 font-bold text-lg md:text-xl">
@@ -148,7 +139,7 @@ const Cart = () => {
                     type="text"
                     name="fullName"
                     placeholder="Enter your name"
-                    value={deliveryInfo.fullName}
+                    value={fullName}
                     onChange={handleInputChange}
                     className="p-2 text-sm md:text-base rounded-md bg-white border border-gray-300 focus:outline-none focus:border-red-500"
                   />
@@ -162,7 +153,7 @@ const Cart = () => {
                     type="text"
                     name="address"
                     placeholder="Enter your address"
-                    value={deliveryInfo.address}
+                    value={address}
                     onChange={handleInputChange}
                     className="p-2 text-sm md:text-base rounded-md bg-white border border-gray-300 focus:outline-none focus:border-red-500"
                   />
@@ -177,7 +168,7 @@ const Cart = () => {
                       type="text"
                       name="city"
                       placeholder="Enter your city"
-                      value={deliveryInfo.city}
+                      value={city}
                       onChange={handleInputChange}
                       className="p-2 text-sm md:text-base rounded-md w-full bg-white border border-gray-300 focus:outline-none focus:border-red-500"
                     />
@@ -191,7 +182,7 @@ const Cart = () => {
                       type="text"
                       name="postCode"
                       placeholder="Enter your postcode"
-                      value={deliveryInfo.postCode}
+                      value={postCode}
                       onChange={handleInputChange}
                       className="p-2 text-sm md:text-base rounded-md w-full bg-white border border-gray-300 focus:outline-none focus:border-red-500"
                     />
@@ -207,7 +198,7 @@ const Cart = () => {
                       type="text"
                       name="country"
                       placeholder="Enter your country"
-                      value={deliveryInfo.country}
+                      value={country}
                       onChange={handleInputChange}
                       className="p-2 text-sm md:text-base rounded-md w-full bg-white border border-gray-300 focus:outline-none focus:border-red-500"
                     />
@@ -221,13 +212,14 @@ const Cart = () => {
                       type="text"
                       name="phoneNo"
                       placeholder="Enter your Number"
-                      value={deliveryInfo.phoneNo}
+                      value={phoneNo}
                       onChange={handleInputChange}
                       className="p-2 text-sm md:text-base rounded-md w-full bg-white border border-gray-300 focus:outline-none focus:border-red-500"
                     />
                   </div>
                 </div>
               </div>
+
               <div className="bg-white border border-gray-100 shadow-xl rounded-md p-4 md:p-7 mt-4 space-y-3 md:space-y-2 h-max">
                 <h1 className="text-gray-800 font-bold text-lg md:text-xl">
                   Bill details
@@ -235,7 +227,7 @@ const Cart = () => {
                 <div className="flex justify-between items-center text-sm md:text-base">
                   <h1 className="flex gap-1 items-center text-gray-700">
                     <span>
-                      <LuNotebookText className="flex-shrink-0" />
+                      <LuNotebookText className="shrink-0" />
                     </span>
                     Items total
                   </h1>
@@ -244,7 +236,7 @@ const Cart = () => {
                 <div className="flex justify-between items-center text-sm md:text-base">
                   <h1 className="flex gap-1 items-center text-gray-700">
                     <span>
-                      <MdDeliveryDining className="flex-shrink-0" />
+                      <MdDeliveryDining className="shrink-0" />
                     </span>
                     Delivery
                   </h1>
@@ -258,7 +250,7 @@ const Cart = () => {
                 <div className="flex justify-between items-center text-sm md:text-base">
                   <h1 className="flex gap-1 items-center text-gray-700">
                     <span>
-                      <GiShoppingBag className="flex-shrink-0" />
+                      <GiShoppingBag className="shrink-0" />
                     </span>
                     Handling
                   </h1>
@@ -281,7 +273,7 @@ const Cart = () => {
                       placeholder="Enter code"
                       className="p-2 text-sm md:text-base rounded-md w-full bg-white border border-gray-300"
                     />
-                    <button className="bg-white text-black border border-gray-200 px-3 md:px-4 text-sm md:text-base cursor-pointer py-2 rounded-md flex-shrink-0">
+                    <button className="bg-white text-black border border-gray-200 px-3 md:px-4 text-sm md:text-base cursor-pointer py-2 rounded-md shrink-0">
                       Apply
                     </button>
                   </div>

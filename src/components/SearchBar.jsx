@@ -1,31 +1,21 @@
 import React, { useState } from "react";
 import { Search, X } from "lucide-react";
 
-const SearchBar = ({ search, setSearch, onSearchSubmit }) => {
+const SearchBar = ({ search, setSearch }) => {
   const [isFocused, setIsFocused] = useState(false);
 
   const handleClear = () => {
     setSearch("");
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (onSearchSubmit) {
-      onSearchSubmit(search);
-    }
-  };
-
   return (
-    <form onSubmit={handleSubmit} className="w-full">
+    <div className="w-full">
       <div
         className={`relative flex items-center bg-white rounded-lg border-2 transition-all ${
           isFocused ? "border-red-500 shadow-lg" : "border-gray-300"
         }`}
       >
-        <Search
-          className="ml-2 md:ml-3 text-gray-400 flex-shrink-0"
-          size={18}
-        />
+        <Search className="ml-2 md:ml-3 text-gray-400 shrink-0" size={18} />
         <input
           type="text"
           placeholder="Search products..."
@@ -39,13 +29,13 @@ const SearchBar = ({ search, setSearch, onSearchSubmit }) => {
           <button
             type="button"
             onClick={handleClear}
-            className="mr-2 md:mr-3 text-gray-400 hover:text-gray-600 transition-colors flex-shrink-0"
+            className="mr-2 md:mr-3 text-gray-400 hover:text-gray-600 transition-colors shrink-0"
           >
             <X size={16} />
           </button>
         )}
       </div>
-    </form>
+    </div>
   );
 };
 

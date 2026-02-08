@@ -1,5 +1,4 @@
-import React, { useEffect, useState } from "react";
-import { useData } from "../context/useData";
+import React, { useContext, useEffect, useState } from "react";
 import FilterSection from "../components/FilterSection";
 import Loading from "../assets/Loading4.webm";
 import ProductCard from "../components/ProductCard";
@@ -11,9 +10,10 @@ import SearchBar from "../components/SearchBar";
 import { useAOS } from "../hooks/useAOS";
 import { ProductGridSkeleton } from "../components/Skeletons";
 import { AlertTriangle } from "lucide-react";
+import { DataContext } from "../context/contexts";
 
 const Products = () => {
-  const { data, fetchAllProducts, loading, error } = useData();
+  const { data, fetchAllProducts, loading, error } = useContext(DataContext);
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("All");
   const [brand, setBrand] = useState("All");
@@ -84,7 +84,7 @@ const Products = () => {
       <div className="max-w-6xl mx-auto px-4 mb-10">
         <div className="mt-6">
           <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded-lg flex gap-4">
-            <AlertTriangle className="text-red-500 flex-shrink-0" size={24} />
+            <AlertTriangle className="text-red-500 shrink-0" size={24} />
             <div>
               <h3 className="font-bold text-red-800 mb-2">
                 Failed to load products
@@ -126,7 +126,7 @@ const Products = () => {
         {data?.length > 0 ? (
           <>
             <div className="flex flex-col lg:flex-row gap-4 lg:gap-8">
-              <div className="hidden lg:block lg:w-80 flex-shrink-0">
+              <div className="hidden lg:block lg:w-80 shrink-0">
                 <FilterSection
                   brand={brand}
                   setBrand={setBrand}

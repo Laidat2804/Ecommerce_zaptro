@@ -1,20 +1,20 @@
-import React from "react";
+import React, { useContext } from "react";
 import { useNavigate } from "react-router-dom";
-import { useCart } from "../context/useCart";
-import LazyImage from "./LazyImage";
+// ...existing code...
+import { CartContext } from "../context/contexts";
 
 const ProductListView = ({ product }) => {
   const navigate = useNavigate();
-  const { addToCart } = useCart();
+  const { addToCart } = useContext(CartContext);
 
   return (
     <div className="space-y-4 mt-2 rounded-md">
       <div className="bg-gray-100 flex gap-7 items-center p-2 rounded-md">
-        <LazyImage
+        <img
           src={product?.images?.[0] || product?.thumbnail}
           alt={product.title}
           className="md:h-60 md:w-60 h-25 w-25 rounded-md cursor-pointer object-cover"
-          placeholder="bg-gray-200 animate-pulse"
+          loading="lazy"
           onClick={() => navigate(`/products/${product.id}`)}
         />
         <div className="space-y-2">

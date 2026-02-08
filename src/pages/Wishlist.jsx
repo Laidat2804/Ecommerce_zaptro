@@ -1,20 +1,15 @@
-import React from "react";
-import { useWishlist } from "../context/useWishlist";
+import React, { useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { Heart, ShoppingCart, Trash2 } from "lucide-react";
-import { useCart } from "../context/useCart";
 import Lottie from "lottie-react";
 import empty from "../assets/notfound.json";
+import { CartContext, WishlistContext } from "../context/contexts";
 
 const Wishlist = () => {
-  const { wishlistItems, removeFromWishlist, clearWishlist } = useWishlist();
-  const { addToCart } = useCart();
+  const { wishlistItems, removeFromWishlist, clearWishlist } =
+    useContext(WishlistContext);
+  const { addToCart } = useContext(CartContext);
   const navigate = useNavigate();
-
-  const handleAddToCart = (product) => {
-    addToCart(product);
-    removeFromWishlist(product.id);
-  };
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-8">
@@ -69,7 +64,7 @@ const Wishlist = () => {
 
                   <div className="flex gap-2">
                     <button
-                      onClick={() => handleAddToCart(product)}
+                      onClick={() => addToCart(product)}
                       className="flex-1 bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-lg flex items-center justify-center gap-2 transition-colors"
                     >
                       <ShoppingCart size={18} />

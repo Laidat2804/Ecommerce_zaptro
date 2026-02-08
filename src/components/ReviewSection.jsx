@@ -2,21 +2,24 @@ import React, { useState, useMemo } from "react";
 import { Star } from "lucide-react";
 import ReviewCard from "./ReviewCard";
 import ReviewForm from "./ReviewForm";
-import { useLocalStorage } from "../hooks/useLocalStorage";
 import { toast } from "react-toastify";
 
-/**
- * ReviewSection Component
- * Complete review section with ratings display and review form
- * Includes error handling and validation
- */
 const ReviewSection = ({ productId }) => {
-  // Initialize reviews from localStorage directly
-  const [reviews, setReviews] = useLocalStorage(`reviews_${productId}`, []);
+  const storageKey = `reviews_${productId}`;
+
+  const [reviews, setReviews] = useState(() => {
+    try {
+      const item = localStorage.getItem(storageKey);
+      return item ? JSON.parse(item) : [];
+    } catch (error) {
+      console.error("Error reading initial reviews:", error);
+      return [];
+    }
+  });
+
   const [sortBy, setSortBy] = useState("recent");
   const [error, setError] = useState(null);
 
-  // Memoize average rating calculation with error handling
   const averageRating = useMemo(() => {
     try {
       if (!Array.isArray(reviews) || reviews.length === 0) return 0;
@@ -30,39 +33,38 @@ const ReviewSection = ({ productId }) => {
       const sum = validReviews.reduce((acc, review) => acc + review.rating, 0);
       return (sum / validReviews.length).toFixed(1);
     } catch (err) {
-      console.error("Error calculating average rating:", err);
+      console.error(err);
       return 0;
     }
   }, [reviews]);
 
-  // Get sorted reviews with error handling
   const getSortedReviews = () => {
     try {
       const reviewsCopy = [...(Array.isArray(reviews) ? reviews : [])];
       switch (sortBy) {
         case "highest":
-          return reviewsCopy.sort((a, b) => (b.rating || 0) - (a.rating || 0));
+          return reviewsCopy.sort((a, b) => b.rating - a.rating);
         case "lowest":
-          return reviewsCopy.sort((a, b) => (a.rating || 0) - (b.rating || 0));
+          return reviewsCopy.sort((a, b) => a.rating - b.rating); // tăng dần
         case "recent":
         default:
           return reviewsCopy.sort(
-            (a, b) => new Date(b.date || 0) - new Date(a.date || 0),
+            (a, b) => new Date(b.date) - new Date(a.date),
           );
       }
     } catch (err) {
-      console.error("Error sorting reviews:", err);
+      console.error(err);
       return Array.isArray(reviews) ? [...reviews] : [];
     }
   };
 
-  // Rating distribution with validation
   const getRatingDistribution = () => {
     try {
       const distribution = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
+
       if (Array.isArray(reviews)) {
         reviews.forEach((review) => {
-          const rating = Math.round(review.rating || 0);
+          const rating = review.rating;
           if (rating >= 1 && rating <= 5) {
             distribution[rating]++;
           }
@@ -70,22 +72,25 @@ const ReviewSection = ({ productId }) => {
       }
       return distribution;
     } catch (err) {
-      console.error("Error calculating distribution:", err);
+      console.error(err);
       return { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
     }
   };
 
-  // Handle new review submission with error handling
   const handleSubmitReview = (newReview) => {
     try {
       if (!newReview || typeof newReview !== "object") {
         throw new Error("Invalid review data");
       }
+
       const updatedReviews = [
         newReview,
         ...(Array.isArray(reviews) ? reviews : []),
       ];
+
       setReviews(updatedReviews);
+      localStorage.setItem(storageKey, JSON.stringify(updatedReviews));
+
       setError(null);
       toast.success("Review submitted successfully!");
     } catch (err) {
@@ -113,7 +118,6 @@ const ReviewSection = ({ productId }) => {
       )}
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-        {/* Rating Summary */}
         <div className="bg-white border border-gray-200 rounded-lg p-6 h-fit">
           <div className="text-center mb-4">
             <div className="text-4xl font-bold text-gray-800">
@@ -137,7 +141,6 @@ const ReviewSection = ({ productId }) => {
             </p>
           </div>
 
-          {/* Rating Distribution */}
           <div className="space-y-2 mt-6">
             {[5, 4, 3, 2, 1].map((rating) => (
               <div key={rating} className="flex items-center gap-2">
@@ -162,7 +165,6 @@ const ReviewSection = ({ productId }) => {
           </div>
         </div>
 
-        {/* Review Form */}
         <div className="md:col-span-2">
           <ReviewForm
             productId={productId}
@@ -171,7 +173,6 @@ const ReviewSection = ({ productId }) => {
         </div>
       </div>
 
-      {/* Reviews List */}
       <div className="mt-8 bg-white border border-gray-200 rounded-lg p-6">
         <div className="flex items-center justify-between mb-6">
           <h3 className="text-xl font-bold text-gray-800">

@@ -1,6 +1,6 @@
-import React from "react";
+import React, { useContext } from "react";
 import { FaFilter } from "react-icons/fa6";
-import { useData } from "../context/useData";
+import { DataContext } from "../context/contexts";
 
 const MobileFilter = ({
   openFilter,
@@ -14,7 +14,7 @@ const MobileFilter = ({
   handleBrandChange,
   handleCategoryChange,
 }) => {
-  const { categoryOnlyData, brandOnlyData } = useData();
+  const { categoryOnlyData, brandOnlyData } = useContext(DataContext);
 
   const toggleFilter = () => {
     setOpenFilter(!openFilter);

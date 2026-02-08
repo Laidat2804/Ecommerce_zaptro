@@ -1,66 +1,68 @@
 import { useState, useEffect, useRef } from "react";
 import React from "react";
 import { useUser } from "@clerk/clerk-react";
-import { OrderHistoryContext } from "./OrderHistoryContext";
+import { OrderHistoryContext } from "./contexts";
 
-export { OrderHistoryContext } from "./OrderHistoryContext";
-
+/**
+ * OrderHistoryProvider: Chỉ quản lý đơn hàng cho người dùng đã đăng nhập.
+ */
 export const OrderHistoryProvider = ({ children }) => {
   const { user, isLoaded } = useUser();
   const isInitialized = useRef(false);
   const prevUserIdRef = useRef(null);
   const [orders, setOrders] = useState([]);
 
+  /**
+   * 1. Hiệu ứng tải dữ liệu: Chỉ chạy khi có user
+   */
   useEffect(() => {
+    // Đợi Clerk tải xong trạng thái người dùng
     if (!isLoaded) return;
 
-    const currentUserId = user?.id || "guest";
+    // Nếu không có user (đã đăng xuất hoặc là khách), reset trạng thái và thoát
+    if (!user) {
+      // Sử dụng setTimeout để đẩy việc reset state ra khỏi luồng render đồng bộ hiện tại
+      const timeoutId = setTimeout(() => {
+        setOrders([]);
+        isInitialized.current = false;
+        prevUserIdRef.current = null;
+      }, 0);
+      return () => clearTimeout(timeoutId);
+    }
+
+    const currentUserId = user.id;
+
     if (prevUserIdRef.current !== currentUserId) {
-      const orderKey = user
-        ? `order_history_${user.id}`
-        : "order_history_guest";
+      const orderKey = `order_history_${currentUserId}`;
       const storedOrders = localStorage.getItem(orderKey);
 
       setTimeout(() => {
         const parsedOrders = storedOrders ? JSON.parse(storedOrders) : [];
-        setOrders(parsedOrders.reverse());
+        setOrders(parsedOrders);
         isInitialized.current = true;
       }, 0);
 
       prevUserIdRef.current = currentUserId;
     }
-  }, [user, isLoaded]);
+  }, [user?.id, isLoaded]);
 
-  /**
-   * Persist orders to localStorage whenever they change
-   */
   useEffect(() => {
-    if (!isLoaded || !isInitialized.current) return;
+    if (!isLoaded || !user || !isInitialized.current) return;
 
-    const orderKey = user ? `order_history_${user.id}` : "order_history_guest";
-    localStorage.setItem(orderKey, JSON.stringify(orders.reverse()));
-  }, [orders, user, isLoaded]);
+    const orderKey = `order_history_${user.id}`;
+    localStorage.setItem(orderKey, JSON.stringify(orders));
+  }, [orders, user?.id, isLoaded]);
 
-  /**
-   * Add new order
-   */
   const addOrder = (newOrder) => {
-    setOrders([newOrder, ...orders]);
+    if (!user) return;
+    setOrders((prev) => [newOrder, ...prev]);
   };
 
-  /**
-   * Delete order by ID
-   */
   const deleteOrder = (orderId) => {
-    setOrders(orders.filter((order) => order.orderId !== orderId));
+    setOrders((prev) => prev.filter((order) => order.orderId !== orderId));
   };
 
-  /**
-   * Get order count
-   */
-  const getOrderCount = () => {
-    return orders.length;
-  };
+  const getOrderCount = () => orders.length;
 
   const contextValue = {
     orders,

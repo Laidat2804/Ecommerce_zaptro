@@ -2,11 +2,6 @@ import { useEffect } from "react";
 import AOS from "aos";
 import "aos/dist/aos.css";
 
-/**
- * useAOS Hook
- * Initializes AOS (Animate On Scroll) library for scroll animations
- * @param {Object} options - AOS configuration options
- */
 export const useAOS = (options = {}) => {
   useEffect(() => {
     const defaultOptions = {
@@ -20,7 +15,6 @@ export const useAOS = (options = {}) => {
 
     AOS.init(defaultOptions);
 
-    // Refresh AOS on component mount
     return () => {
       AOS.refresh();
     };

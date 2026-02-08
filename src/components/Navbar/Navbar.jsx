@@ -7,21 +7,23 @@ import {
   useUser,
 } from "@clerk/clerk-react";
 import { MapPin, Heart, Receipt } from "lucide-react";
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useContext } from "react";
 import { CgClose } from "react-icons/cg";
 import { FaCaretDown } from "react-icons/fa";
 import { IoCartOutline } from "react-icons/io5";
 import { Link, NavLink } from "react-router-dom";
-import { useCart } from "../../context/useCart";
-import { useWishlist } from "../../context/useWishlist";
-import { useOrderHistory } from "../../context/useOrderHistory";
 import { HiMenuAlt1, HiMenuAlt3 } from "react-icons/hi";
 import ResponsiveMenu from "../ResponsiveMenu";
+import {
+  CartContext,
+  OrderHistoryContext,
+  WishlistContext,
+} from "../../context/contexts";
 
 const Navbar = ({ location, getLocation, openDropdown, setOpenDropdown }) => {
-  const { cartItem } = useCart();
-  const { wishlistItems } = useWishlist();
-  const { getOrderCount } = useOrderHistory();
+  const { cartItem } = useContext(CartContext);
+  const { wishlistItems } = useContext(WishlistContext);
+  const { getOrderCount } = useContext(OrderHistoryContext);
   const { isSignedIn } = useAuth();
   const { user } = useUser();
   const prevSignedInRef = useRef(isSignedIn);

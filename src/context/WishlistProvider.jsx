@@ -3,86 +3,76 @@ import { toast } from "react-toastify";
 import { WishlistContext } from "./contexts";
 import { useUser } from "@clerk/clerk-react";
 
-/**
- * Wishlist Provider Component
- * Manages wishlist state with localStorage persistence and Clerk authentication
- */
 export const WishlistProvider = ({ children }) => {
   const { user, isLoaded } = useUser();
   const isInitialized = useRef(false);
   const prevUserIdRef = useRef(null);
   const [wishlistItems, setWishlistItems] = useState([]);
 
-  /**
-   * Generate wishlist storage key based on user authentication status
-   */
   const getWishlistKey = () => {
-    return user ? `wishlist_${user.id}` : "wishlist_guest";
+    return user ? `wishlist_${user.id}` : null;
   };
 
-  /**
-   * Load wishlist from localStorage when user changes (login/logout)
-   */
   useEffect(() => {
     if (!isLoaded) return;
 
-    const currentUserId = user?.id || "guest";
+    if (!user) {
+      const timeoutId = setTimeout(() => {
+        setWishlistItems([]);
+        isInitialized.current = false;
+        prevUserIdRef.current = null;
+      }, 0);
+      return () => clearTimeout(timeoutId);
+    }
+
+    const currentUserId = user.id;
     if (prevUserIdRef.current !== currentUserId) {
       const wishlistKey = getWishlistKey();
       const storedWishlist = localStorage.getItem(wishlistKey);
 
-      setTimeout(() => {
+      const timeoutId = setTimeout(() => {
         setWishlistItems(storedWishlist ? JSON.parse(storedWishlist) : []);
         isInitialized.current = true;
       }, 0);
 
       prevUserIdRef.current = currentUserId;
+      return () => clearTimeout(timeoutId);
     }
   }, [user?.id, isLoaded]);
 
-  /**
-   * Persist wishlist to localStorage whenever it changes
-   */
   useEffect(() => {
-    if (!isLoaded || !isInitialized.current) return;
-
     const wishlistKey = getWishlistKey();
+    if (!isLoaded || !wishlistKey || !isInitialized.current) return;
+
     localStorage.setItem(wishlistKey, JSON.stringify(wishlistItems));
   }, [wishlistItems, user?.id, isLoaded]);
 
-  /**
-   * Add or remove product from wishlist
-   */
   const toggleWishlist = (product) => {
-    const isInWishlist = wishlistItems.some((item) => item.id === product.id);
+    if (!user) {
+      toast.error("Please sign in to add products to wishlist!");
+      return;
+    }
 
-    if (isInWishlist) {
-      setWishlistItems(wishlistItems.filter((item) => item.id !== product.id));
+    const isInList = wishlistItems.some((item) => item.id === product.id);
+
+    if (isInList) {
+      setWishlistItems((prev) => prev.filter((item) => item.id !== product.id));
       toast.info("Removed from wishlist");
     } else {
-      setWishlistItems([...wishlistItems, product]);
+      setWishlistItems((prev) => [...prev, product]);
       toast.success("Added to wishlist ❤️");
     }
   };
 
-  /**
-   * Check if product is in wishlist
-   */
   const isInWishlist = (productId) => {
     return wishlistItems.some((item) => item.id === productId);
   };
 
-  /**
-   * Remove product from wishlist
-   */
   const removeFromWishlist = (productId) => {
-    setWishlistItems(wishlistItems.filter((item) => item.id !== productId));
+    setWishlistItems((prev) => prev.filter((item) => item.id !== productId));
     toast.success("Removed from wishlist");
   };
 
-  /**
-   * Clear entire wishlist
-   */
   const clearWishlist = () => {
     setWishlistItems([]);
     toast.info("Wishlist cleared");

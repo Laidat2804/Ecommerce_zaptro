@@ -1,17 +1,12 @@
 import React, { useState } from "react";
 import { Star, Send } from "lucide-react";
 import { toast } from "react-toastify";
-import { useUser } from "@clerk/clerk-react";
+import { useUser, SignInButton } from "@clerk/clerk-react";
 
-/**
- * ReviewForm Component
- * Form for users to submit product reviews
- */
 const ReviewForm = ({ productId, onSubmitReview }) => {
   const { user, isLoaded } = useUser();
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState("");
-  const [hoveredRating, setHoveredRating] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (e) => {
@@ -27,8 +22,8 @@ const ReviewForm = ({ productId, onSubmitReview }) => {
       return;
     }
 
-    if (comment.trim().length < 10) {
-      toast.error("Review must be at least 10 characters");
+    if (comment.trim().length < 5) {
+      toast.error("Review must be at least 5 characters");
       return;
     }
 
@@ -37,19 +32,16 @@ const ReviewForm = ({ productId, onSubmitReview }) => {
     const newReview = {
       id: Date.now(),
       productId,
-      author:
-        user.fullName || user.emailAddresses?.[0]?.emailAddress || "Anonymous",
+      author: user.fullName || user.emailAddresses?.[0]?.emailAddress,
       rating,
       comment,
       date: new Date().toISOString(),
-      verified: true,
     };
 
     try {
       onSubmitReview(newReview);
       setRating(0);
       setComment("");
-      toast.success("Review submitted successfully!");
     } catch (error) {
       toast.error("Failed to submit review");
       console.error(error);
@@ -65,12 +57,12 @@ const ReviewForm = ({ productId, onSubmitReview }) => {
   if (!user) {
     return (
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-center">
-        <p className="text-gray-700">
-          <a href="/sign-in" className="text-blue-600 font-semibold">
-            Sign in
-          </a>{" "}
-          to share your review
-        </p>
+        <p className="text-gray-700 mb-2">Share your review with us</p>
+        <SignInButton mode="modal">
+          <button className="text-blue-600 font-semibold hover:underline">
+            Sign in to share your review
+          </button>
+        </SignInButton>
       </div>
     );
   }
@@ -92,14 +84,12 @@ const ReviewForm = ({ productId, onSubmitReview }) => {
               key={star}
               type="button"
               onClick={() => setRating(star)}
-              onMouseEnter={() => setHoveredRating(star)}
-              onMouseLeave={() => setHoveredRating(0)}
               className="transition-transform hover:scale-110"
             >
               <Star
                 size={28}
                 className={
-                  star <= (hoveredRating || rating)
+                  star <= rating
                     ? "fill-yellow-400 text-yellow-400"
                     : "text-gray-300"
                 }
@@ -109,7 +99,7 @@ const ReviewForm = ({ productId, onSubmitReview }) => {
         </div>
       </div>
 
-      {/* Comment Textarea */}
+      {/* Comment Text*/}
       <div className="mb-4">
         <label
           htmlFor="comment"

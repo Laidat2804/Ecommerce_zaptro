@@ -6,7 +6,6 @@ import {
 } from "@clerk/clerk-react";
 import React from "react";
 import { FaUserCircle } from "react-icons/fa";
-import { FaSignInAlt } from "react-icons/fa";
 import { Link, NavLink } from "react-router-dom";
 
 const ResponsiveMenu = ({ openNav, setOpenNav }) => {
@@ -30,7 +29,7 @@ const ResponsiveMenu = ({ openNav, setOpenNav }) => {
         ) : (
           <div className="mb-8">
             <div className="flex items-center justify-start gap-3 mb-6">
-              <div className="bg-gradient-to-br from-red-500 to-pink-500 rounded-full p-3 shadow-lg">
+              <div className="bg-linear-to-br from-red-500 to-pink-500 rounded-full p-3 shadow-lg">
                 <FaUserCircle className="text-white" size={28} />
               </div>
               <div>

@@ -1,27 +1,24 @@
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useState, useMemo, useContext } from "react";
 import { useAOS } from "../hooks/useAOS";
-import { useOrderHistory } from "../context/useOrderHistory";
 import { ShoppingBag, Calendar, DollarSign, Trash2 } from "lucide-react";
+import { OrderHistoryContext } from "../context/contexts";
 
 const OrderHistory = () => {
-  const { orders, deleteOrder } = useOrderHistory();
+  const { orders, deleteOrder } = useContext(OrderHistoryContext);
   const [expandedOrder, setExpandedOrder] = useState(null);
 
   useAOS();
 
   useEffect(() => {
-    // Chỉ scroll top khi component mount
     window.scrollTo(0, 0);
   }, []);
 
-  // Memoize displayedOrders để tránh re-render không cần thiết
   const displayedOrders = useMemo(() => {
     return [...orders].reverse();
   }, [orders]);
 
-  // Hàm xóa đơn hàng
   const handleDeleteOrder = (orderId, e) => {
-    e.stopPropagation(); // Ngăn chặn kích hoạt nút mở rộng
+    e.stopPropagation();
 
     if (window.confirm(`You definitely want to cancel the order ${orderId}?`)) {
       deleteOrder(orderId);

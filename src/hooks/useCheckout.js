@@ -1,14 +1,13 @@
 import { useNavigate } from "react-router-dom";
-import { useCart } from "../context/useCart";
-import { useOrderHistory } from "../context/useOrderHistory";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { toast } from "react-toastify";
+import { CartContext, OrderHistoryContext } from "../context/contexts";
 
 export const useCheckout = () => {
   const navigate = useNavigate();
 
-  const { cartItem, clearCart } = useCart();
-  const { addOrder } = useOrderHistory();
+  const { cartItem, clearCart } = useContext(CartContext);
+  const { addOrder } = useContext(OrderHistoryContext);
   const [isProcessing, setIsProcessing] = useState(false);
 
   const handleCheckout = async () => {
@@ -45,8 +44,8 @@ export const useCheckout = () => {
         })),
       };
 
-      // Mô phỏng xử lý thanh toán (2 giây)
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      // Mô phỏng xử lý thanh toán (1 giây)
+      await new Promise((resolve) => setTimeout(resolve, 1000));
 
       // Thêm đơn hàng vào context (xử lý localStorage tự động)
       addOrder(newOrder);

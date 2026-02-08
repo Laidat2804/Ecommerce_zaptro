@@ -1,11 +1,10 @@
-import React from "react";
-import { useData } from "../context/useData";
+import React, { useContext } from "react";
 import { useNavigate } from "react-router-dom";
+import { DataContext } from "../context/contexts";
 
 const Category = () => {
-  // const {categoryOnlyData} = useData()
   const navigate = useNavigate();
-  const { data } = useData();
+  const { data } = useContext(DataContext);
 
   const getUniqueCategory = (data, property) => {
     let newVal = data?.map((curElem) => {

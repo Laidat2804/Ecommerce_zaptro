@@ -5,3 +5,5 @@ export const CartContext = createContext(null);
 export const DataContext = createContext(null);
 
 export const WishlistContext = createContext(null);
+
+export const OrderHistoryContext = createContext();

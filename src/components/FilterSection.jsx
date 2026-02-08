@@ -1,5 +1,5 @@
-import React from "react";
-import { useData } from "../context/useData";
+import React, { useContext } from "react";
+import { DataContext } from "../context/contexts";
 
 const FilterSection = ({
   brand,
@@ -11,7 +11,7 @@ const FilterSection = ({
   handleBrandChange,
   handleCategoryChange,
 }) => {
-  const { categoryOnlyData, brandOnlyData } = useData();
+  const { categoryOnlyData, brandOnlyData } = useContext(DataContext);
   return (
     <div className="bg-gray-100 mt-10 p-3 md:p-4 rounded-md h-max hidden lg:block text-sm md:text-base">
       {/* category only data */}

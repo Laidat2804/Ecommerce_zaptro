@@ -1,26 +1,19 @@
-import React from "react";
+import React, { useContext } from "react";
 import { IoCartOutline } from "react-icons/io5";
 import { Heart } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { useCart } from "../context/useCart";
-import { useWishlist } from "../context/useWishlist";
-import LazyImage from "./LazyImage";
+// ...existing code...
+import { CartContext, WishlistContext } from "../context/contexts";
 
 const ProductCard = ({ product }) => {
   const navigate = useNavigate();
-  const { addToCart, cartItem } = useCart();
-  const { toggleWishlist, isInWishlist } = useWishlist();
-
-  console.log(cartItem);
+  const { addToCart } = useContext(CartContext);
+  const { toggleWishlist, isInWishlist } = useContext(WishlistContext);
 
   const inWishlist = isInWishlist(product.id);
 
   return (
-    <div
-      className="border relative border-gray-100 rounded-xl md:rounded-2xl cursor-pointer hover:scale-105 hover:shadow-2xl transition-all p-1.5 md:p-2 h-max"
-      data-aos="zoom-in"
-      data-aos-duration="600"
-    >
+    <div className="border relative border-gray-100 rounded-xl md:rounded-2xl cursor-pointer hover:scale-105 hover:shadow-2xl transition-all p-1.5 md:p-2 h-max">
       {/* Wishlist Button */}
       <button
         onClick={(e) => {
@@ -36,11 +29,11 @@ const ProductCard = ({ product }) => {
         />
       </button>
 
-      <LazyImage
+      <img
         src={product?.images?.[0] || product?.thumbnail}
         alt={product.title}
         className="bg-gray-100 aspect-square w-full rounded-lg object-cover cursor-pointer"
-        placeholder="bg-gray-200 animate-pulse"
+        loading="lazy"
         onClick={() => navigate(`/products/${product.id}`)}
       />
       <h1
