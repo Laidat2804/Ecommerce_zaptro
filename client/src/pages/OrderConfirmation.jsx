@@ -58,12 +58,10 @@ const OrderConfirmation = () => {
             )}
           </div>
 
-          {/* Info Message */}
           <p className="text-gray-600 text-sm mb-8">
             A confirmation email has been sent to your email address.
           </p>
 
-          {/* Action Buttons */}
           <div className="flex flex-col gap-4">
             <button
               onClick={() => navigate("/orders")}

@@ -8,7 +8,7 @@ import { CartProvider } from "./context/CartProvider.jsx";
 import { WishlistProvider } from "./context/WishlistProvider.jsx";
 import { OrderHistoryProvider } from "./context/OrderHistoryProvider.jsx";
 import { ToastContainer } from "react-toastify";
-import ErrorBoundary from "./components/ErrorBoundary";
+import ErrorBoundary from "./components/ErrorBoundary.jsx";
 
 const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 

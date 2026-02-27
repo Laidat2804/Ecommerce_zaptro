@@ -4,17 +4,13 @@ import { useParams } from "react-router-dom";
 import Loading from "../assets/Loading4.webm";
 import { IoCartOutline } from "react-icons/io5";
 import Breadcrums from "../components/Breadcums";
-import ReviewSection from "../components/ReviewSection"; // Import component ReviewSection
+import ReviewSection from "../components/ReviewSection";
 import { CartContext } from "../context/contexts";
 
 const SingleProduct = () => {
   const params = useParams();
   const { addToCart } = useContext(CartContext);
-
-  // 1. Đổi tên state thành 'product' cho đúng chuẩn (biến thường, component hoa)
   const [product, setProduct] = useState(null);
-
-  // 2. Thêm state quản lý số lượng mua
   const [quantity, setQuantity] = useState(1);
 
   useEffect(() => {
@@ -24,7 +20,7 @@ const SingleProduct = () => {
           `https://dummyjson.com/products/${params.id}`,
         );
         setProduct(res.data);
-        setQuantity(1); // Reset số lượng về 1 khi load sản phẩm mới
+        setQuantity(1);
       } catch (error) {
         console.log("Error fetching product:", error);
       }
@@ -34,7 +30,6 @@ const SingleProduct = () => {
     window.scrollTo(0, 0);
   }, [params.id]);
 
-  // Logic tính giá gốc
   const originalPrice = product
     ? (
         Math.round(
@@ -43,7 +38,6 @@ const SingleProduct = () => {
       ).toFixed(2)
     : 0;
 
-  // Hàm xử lý thay đổi số lượng
   const handleQuantityChange = (e) => {
     const value = parseInt(e.target.value);
     if (value > 0) setQuantity(value);
@@ -136,10 +130,6 @@ const SingleProduct = () => {
           </div>
 
           <div className="mt-10">
-            {/* QUAN TRỌNG: Thêm key={product.id}.
-               Điều này giúp ReviewSection tự động reset state khi chuyển sản phẩm khác 
-               mà KHÔNG CẦN dùng useEffect bên trong ReviewSection.
-            */}
             <ReviewSection productId={product.id} key={product.id} />
           </div>
         </div>
