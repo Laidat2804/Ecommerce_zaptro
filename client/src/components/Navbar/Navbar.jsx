@@ -1,17 +1,9 @@
-import {
-  SignedIn,
-  SignedOut,
-  SignInButton,
-  UserButton,
-  useAuth,
-  useUser,
-} from "@clerk/clerk-react";
-import { MapPin, Heart, Receipt } from "lucide-react";
+import { MapPin, Heart, Receipt, LogOut, User } from "lucide-react";
 import React, { useState, useEffect, useRef, useContext } from "react";
 import { CgClose } from "react-icons/cg";
 import { FaCaretDown } from "react-icons/fa";
 import { IoCartOutline } from "react-icons/io5";
-import { Link, NavLink } from "react-router-dom";
+import { Link, NavLink, useNavigate } from "react-router-dom";
 import { HiMenuAlt1, HiMenuAlt3 } from "react-icons/hi";
 import ResponsiveMenu from "../ResponsiveMenu";
 import {
@@ -19,56 +11,38 @@ import {
   OrderHistoryContext,
   WishlistContext,
 } from "../../context/contexts";
+import { useAuth } from "../../context/AuthContext";
 
 const Navbar = ({ location, getLocation, openDropdown, setOpenDropdown }) => {
-  const { cartItem } = useContext(CartContext);
-  const { wishlistItems } = useContext(WishlistContext);
+  const { cartItem, clearCart } = useContext(CartContext);
+  const { wishlistItems, clearWishlist } = useContext(WishlistContext);
   const { getOrderCount } = useContext(OrderHistoryContext);
-  const { isSignedIn } = useAuth();
-  const { user } = useUser();
-  const prevSignedInRef = useRef(isSignedIn);
-  const prevUserIdRef = useRef(user?.id);
+  const { user, isSignedIn, logout } = useAuth();
+  const navigate = useNavigate();
   const [openNav, setOpenNav] = useState(false);
   const [orderCount, setOrderCount] = useState(0);
+  const [showUserMenu, setShowUserMenu] = useState(false);
 
   // Update orderCount từ context
   useEffect(() => {
     setOrderCount(getOrderCount());
   }, [getOrderCount]);
 
-  useEffect(() => {
-    // Xóa dữ liệu khi logout hoặc đổi tài khoản
-    const clearUserData = () => {
-      localStorage.removeItem("cart");
-      localStorage.removeItem("wishlist");
-      localStorage.removeItem("order_history");
-      localStorage.removeItem("current_user_id");
-      setOrderCount(0);
-    };
-
-    // Kiểm tra logout
-    if (prevSignedInRef.current === true && isSignedIn === false) {
-      clearUserData();
-    }
-
-    // Kiểm tra thay đổi user (đăng nhập tài khoản khác)
-    if (user?.id) {
-      const storedUserId = localStorage.getItem("current_user_id");
-      if (storedUserId && storedUserId !== user.id) {
-        clearUserData();
-        localStorage.setItem("current_user_id", user.id);
-      } else if (!storedUserId) {
-        localStorage.setItem("current_user_id", user.id);
-      }
-    }
-
-    prevSignedInRef.current = isSignedIn;
-    prevUserIdRef.current = user?.id;
-  }, [isSignedIn, user?.id]);
-
   const toggleDropdown = () => {
     setOpenDropdown(!openDropdown);
   };
+
+  const handleLogout = () => {
+    // Reset context states ngay lập tức
+    clearCart && clearCart();
+    clearWishlist && clearWishlist();
+    setOrderCount(0);
+    // Logout (clear auth token/user)
+    logout();
+    setShowUserMenu(false);
+    navigate("/");
+  };
+
   return (
     <div className="bg-white py-2 md:py-3 shadow-2xl px-4 md:px-0">
       <div className="max-w-6xl mx-auto flex justify-between items-center gap-3 md:gap-7">
@@ -162,7 +136,7 @@ const Navbar = ({ location, getLocation, openDropdown, setOpenDropdown }) => {
               <li>Contact</li>
             </NavLink>
           </ul>
-          <SignedIn>
+          {isSignedIn && (
             <div className="flex items-center gap-2 md:gap-4">
               <Link to={"/wishlist"} className="relative shrink-0">
                 <Heart className="h-5 w-5 md:h-6 md:w-6 hover:text-red-500 transition-colors" />
@@ -183,14 +157,44 @@ const Navbar = ({ location, getLocation, openDropdown, setOpenDropdown }) => {
                 </span>
               </Link>
             </div>
-          </SignedIn>
+          )}
           <div className="hidden md:block">
-            <SignedOut>
-              <SignInButton className="bg-red-500 text-white px-3 py-1 rounded-md cursor-pointer text-sm" />
-            </SignedOut>
-            <SignedIn>
-              <UserButton />
-            </SignedIn>
+            {!isSignedIn ? (
+              <Link
+                to="/login"
+                className="bg-red-500 text-white px-3 py-1 rounded-md cursor-pointer text-sm hover:bg-red-600 transition-colors"
+              >
+                Đăng nhập
+              </Link>
+            ) : (
+              <div className="relative">
+                <button
+                  onClick={() => setShowUserMenu(!showUserMenu)}
+                  className="flex items-center gap-2 bg-gradient-to-r from-red-500 to-pink-500 text-white rounded-full w-9 h-9 justify-center font-bold text-sm cursor-pointer hover:from-red-600 hover:to-pink-600 transition-all"
+                >
+                  {user?.name?.charAt(0)?.toUpperCase() || <User size={16} />}
+                </button>
+                {showUserMenu && (
+                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl border border-gray-100 py-2 z-50">
+                    <div className="px-4 py-2 border-b border-gray-100">
+                      <p className="font-semibold text-sm text-gray-800 truncate">
+                        {user?.name}
+                      </p>
+                      <p className="text-xs text-gray-500 truncate">
+                        {user?.email}
+                      </p>
+                    </div>
+                    <button
+                      onClick={handleLogout}
+                      className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2 transition-colors cursor-pointer"
+                    >
+                      <LogOut size={16} />
+                      Đăng xuất
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
           {openNav ? (
             <HiMenuAlt3

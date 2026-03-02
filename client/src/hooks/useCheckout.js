@@ -1,69 +1,72 @@
 import { useNavigate } from "react-router-dom";
 import { useContext, useState } from "react";
 import { toast } from "react-toastify";
+import axios from "axios";
 import { CartContext, OrderHistoryContext } from "../context/contexts";
+import { useAuth } from "../context/AuthContext";
+
+const API_URL = "http://localhost:5000/api/orders";
 
 export const useCheckout = () => {
   const navigate = useNavigate();
-
-  const { cartItem, clearCart } = useContext(CartContext);
+  const { token } = useAuth();
+  const { cartItem, setCartItem } = useContext(CartContext);
   const { addOrder } = useContext(OrderHistoryContext);
   const [isProcessing, setIsProcessing] = useState(false);
 
-  const handleCheckout = async () => {
-    // Kiểm tra giỏ hàng
+  const handleCheckout = async (paymentMethod = "COD", shippingAddress = {}) => {
     if (!cartItem || cartItem.length === 0) {
       toast.error("Giỏ hàng trống!");
+      return;
+    }
+
+    if (!token) {
+      toast.error("Vui lòng đăng nhập để đặt hàng!");
       return;
     }
 
     try {
       setIsProcessing(true);
 
-      // Tính tổng giá
       const subtotal = cartItem.reduce(
         (sum, item) => sum + (item.price || 0) * (item.quantity || 1),
-        0,
+        0
       );
       const shippingFee = 5;
-      const totalPrice = subtotal + shippingFee;
+      const totalAmount = subtotal + shippingFee;
 
-      // Tạo đối tượng đơn hàng
-      const newOrder = {
-        orderId: `ORD-${Date.now()}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`,
-        date: new Date().toLocaleString("vi-VN"),
-        subtotal: subtotal.toFixed(2),
-        shippingFee: shippingFee.toFixed(2),
-        totalPrice: totalPrice.toFixed(2),
-        items: cartItem.map((item) => ({
-          id: item.id,
-          title: item.title,
-          price: item.price,
+      const orderData = {
+        products: cartItem.map((item) => ({
+          productId: item.id,
           quantity: item.quantity || 1,
-          image: item.images?.[0] || item.thumbnail || item.image,
+          price: item.price,
         })),
+        totalAmount,
+        paymentMethod,
+        shippingAddress,
       };
 
-      // Mô phỏng xử lý thanh toán (1 giây)
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      const res = await axios.post(API_URL, orderData, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
-      // Thêm đơn hàng vào context (xử lý localStorage tự động)
-      addOrder(newOrder);
+      // Thêm order vào OrderHistory context (cập nhật UI ngay)
+      addOrder(res.data.order);
 
-      // Xóa giỏ hàng
-      clearCart();
-      localStorage.removeItem("cart");
+      // Xóa giỏ hàng local
+      setCartItem([]);
 
-      // Hiển thị thông báo thành công
-      toast.success("Thanh toán thành công!");
+      toast.success("Đặt hàng thành công!");
 
-      // Điều hướng tới trang cảm ơn
       navigate("/order-confirmation", {
-        state: { orderId: newOrder.orderId, totalPrice: newOrder.totalPrice },
+        state: {
+          orderId: res.data.order._id,
+          totalPrice: totalAmount.toFixed(2),
+        },
       });
     } catch (error) {
-      toast.error("Có lỗi xảy ra, vui lòng thử lại!");
       console.error("Checkout error:", error);
+      toast.error(error.response?.data?.message || "Có lỗi xảy ra!");
     } finally {
       setIsProcessing(false);
     }

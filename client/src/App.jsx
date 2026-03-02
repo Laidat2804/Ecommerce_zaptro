@@ -8,12 +8,13 @@ import Cart from "./pages/Cart";
 import Wishlist from "./pages/Wishlist";
 import OrderConfirmation from "./pages/OrderConfirmation";
 import OrderHistory from "./pages/OrderHistory";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import Footer from "./components/Footer";
 import SingleProduct from "./pages/SingleProduct";
 import ProtectedRoute from "./components/ProtectedRoute";
-import CategoryProduct from "./pages/CategoryProduct";
 
 function App() {
   const [location, setLocation] = useState();
@@ -50,12 +51,11 @@ function App() {
         />
         <Routes>
           <Route path="/" element={<Home />}></Route>
+          <Route path="/login" element={<Login />}></Route>
+          <Route path="/register" element={<Register />}></Route>
           <Route path="/products" element={<Products />}></Route>
           <Route path="/products/:id" element={<SingleProduct />}></Route>
-          <Route
-            path="/category/:category"
-            element={<CategoryProduct />}
-          ></Route>
+
           <Route path="/about" element={<About />}></Route>
           <Route path="/contact" element={<Contact />}></Route>
           <Route

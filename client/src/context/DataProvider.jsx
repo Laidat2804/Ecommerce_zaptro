@@ -2,7 +2,7 @@ import axios from "axios";
 import { useState } from "react";
 import { DataContext } from "./contexts";
 
-const API_BASE_URL = "https://dummyjson.com";
+const API_BASE_URL = "http://localhost:5000/api";
 
 export const DataProvider = ({ children }) => {
   const [data, setData] = useState([]);
@@ -16,12 +16,23 @@ export const DataProvider = ({ children }) => {
       const response = await axios.get(`${API_BASE_URL}/products`, {
         timeout: 10000,
       });
-      const productsData = response.data.products;
+      const productsData = response.data;
 
-      if (productsData.length === 0) {
-        throw new Error("No products found");
-      }
-      setData(productsData);
+      // Map dữ liệu backend sang format mà các component client đang dùng
+      const mappedProducts = productsData.map((product) => ({
+        id: product._id,
+        title: product.name,
+        description: product.description,
+        price: product.price,
+        thumbnail: product.imageUrl,
+        images: [product.imageUrl],
+        category: product.category,
+        stock: product.stock,
+        brand: product.category, // Dùng category làm brand tạm thời
+        rating: 0,
+      }));
+
+      setData(mappedProducts);
       setError(null);
     } catch (err) {
       const errorMessage =

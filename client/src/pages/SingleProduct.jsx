@@ -4,39 +4,46 @@ import { useParams } from "react-router-dom";
 import Loading from "../assets/Loading4.webm";
 import { IoCartOutline } from "react-icons/io5";
 import Breadcrums from "../components/Breadcums";
-import ReviewSection from "../components/ReviewSection";
 import { CartContext } from "../context/contexts";
+import { AlertTriangle } from "lucide-react";
+
+const API_URL = "http://localhost:5000/api/products";
 
 const SingleProduct = () => {
   const params = useParams();
   const { addToCart } = useContext(CartContext);
   const [product, setProduct] = useState(null);
   const [quantity, setQuantity] = useState(1);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const getSingleProduct = async () => {
       try {
-        const res = await axios.get(
-          `https://dummyjson.com/products/${params.id}`,
-        );
-        setProduct(res.data);
+        setError(null);
+        const res = await axios.get(`${API_URL}/${params.id}`);
+        const data = res.data;
+
+        // Map dữ liệu backend sang format component đang dùng
+        setProduct({
+          id: data._id,
+          title: data.name,
+          description: data.description,
+          price: data.price,
+          thumbnail: data.imageUrl,
+          images: data.imageUrl ? [data.imageUrl] : [],
+          category: data.category,
+          stock: data.stock,
+        });
         setQuantity(1);
-      } catch (error) {
-        console.log("Error fetching product:", error);
+      } catch (err) {
+        console.error("Error fetching product:", err);
+        setError("Không thể tải thông tin sản phẩm");
       }
     };
 
     getSingleProduct();
     window.scrollTo(0, 0);
   }, [params.id]);
-
-  const originalPrice = product
-    ? (
-        Math.round(
-          (product.price / (1 - product.discountPercentage / 100)) * 100,
-        ) / 100
-      ).toFixed(2)
-    : 0;
 
   const handleQuantityChange = (e) => {
     const value = parseInt(e.target.value);
@@ -48,6 +55,21 @@ const SingleProduct = () => {
       addToCart(product, quantity);
     }
   };
+
+  // Error state
+  if (error) {
+    return (
+      <div className="max-w-6xl mx-auto px-4 py-20">
+        <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded-lg flex gap-4">
+          <AlertTriangle className="text-red-500 shrink-0" size={24} />
+          <div>
+            <h3 className="font-bold text-red-800 mb-2">Lỗi</h3>
+            <p className="text-red-700 text-sm">{error}</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <>
@@ -70,17 +92,25 @@ const SingleProduct = () => {
                 {product.title}
               </h1>
               <div className="text-sm md:text-base text-gray-700 font-medium">
-                {product.brand?.toUpperCase()} /{" "}
                 {product.category?.toUpperCase()}
               </div>
 
               <div className="text-base md:text-xl text-red-500 font-bold flex flex-wrap gap-2 items-center">
                 <span className="text-2xl">${product.price}</span>
-                <span className="line-through text-gray-400 text-sm md:text-base ml-2">
-                  ${originalPrice}
-                </span>
-                <span className="bg-red-100 text-red-600 px-2 md:px-3 py-1 rounded-full text-xs md:text-sm font-semibold">
-                  -{product.discountPercentage}%
+              </div>
+
+              {/* Stock info */}
+              <div className="flex items-center gap-2">
+                <span
+                  className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                    product.stock > 0
+                      ? "bg-green-100 text-green-600"
+                      : "bg-red-100 text-red-600"
+                  }`}
+                >
+                  {product.stock > 0
+                    ? `In Stock (${product.stock})`
+                    : "Out of Stock"}
                 </span>
               </div>
 
@@ -96,7 +126,9 @@ const SingleProduct = () => {
                 <div className="flex items-center border border-gray-300 rounded-lg">
                   <button
                     className="px-3 py-1 text-gray-600 hover:bg-gray-100 rounded-l-lg"
-                    onClick={() => setQuantity((prev) => Math.max(1, prev - 1))}
+                    onClick={() =>
+                      setQuantity((prev) => Math.max(1, prev - 1))
+                    }
                   >
                     -
                   </button>
@@ -120,7 +152,8 @@ const SingleProduct = () => {
               <div className="flex gap-2 md:gap-4 mt-4">
                 <button
                   onClick={handleAddToCart}
-                  className="px-6 py-3 flex items-center justify-center gap-2 text-base md:text-lg bg-red-600 hover:bg-red-700 text-white rounded-lg flex-1 md:flex-none transition-colors shadow-lg shadow-red-200"
+                  disabled={product.stock === 0}
+                  className="px-6 py-3 flex items-center justify-center gap-2 text-base md:text-lg bg-red-600 hover:bg-red-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white rounded-lg flex-1 md:flex-none transition-colors shadow-lg shadow-red-200"
                 >
                   <IoCartOutline className="w-6 h-6" />
                   <span className="font-semibold">Add to Cart</span>
@@ -129,9 +162,6 @@ const SingleProduct = () => {
             </div>
           </div>
 
-          <div className="mt-10">
-            <ReviewSection productId={product.id} key={product.id} />
-          </div>
         </div>
       ) : (
         <div className="flex items-center justify-center h-screen bg-white">

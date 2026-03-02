@@ -16,7 +16,6 @@ const Products = () => {
   const { data, fetchAllProducts, loading, error } = useContext(DataContext);
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("All");
-  const [brand, setBrand] = useState("All");
   const [priceRange, setPriceRange] = useState([0, 5000]);
   const [page, setPage] = useState(1);
   const [openFilter, setOpenFilter] = useState(false);
@@ -29,34 +28,25 @@ const Products = () => {
   }, []);
 
   const handleCategoryChange = (e) => {
-    setCategory(e.target.value); //giá trị danh mục người dùng vừa chọn
-    setPage(1); //Đặt lại trang về trang 1
-    setOpenFilter(false);
-  };
-
-  const handleBrandChange = (e) => {
-    setBrand(e.target.value);
+    setCategory(e.target.value);
     setPage(1);
     setOpenFilter(false);
   };
 
   const pageHandler = (selectedPage) => {
     setPage(selectedPage);
-    window.scrollTo(0, 0); //Tự động cuộn trang web về vị trí đầu trang (tọa độ x=0, y=0)
+    window.scrollTo(0, 0);
   };
 
+  // Lọc: search + category + price (không còn brand)
   const filteredData = data?.filter(
     (item) =>
       item?.title?.toLowerCase().includes(search.toLowerCase()) &&
       (category === "All" || item?.category === category) &&
-      (brand === "All" || item?.brand === brand) &&
       (item?.price || 0) >= priceRange[0] &&
       (item?.price || 0) <= priceRange[1],
   );
 
-  // lọc / 8
-  // lọc dc 25 sp thì 25/8 =3125 =>math.celi làm tròn lên 4 ( có 4 trang)
-  // 3 trang đầu 8 sp, trang cuối 1 sp
   const dynamicPage = Math.ceil(filteredData?.length / 8);
 
   // Handle loading state
@@ -114,28 +104,22 @@ const Products = () => {
         <MobileFilter
           openFilter={openFilter}
           setOpenFilter={setOpenFilter}
-          brand={brand}
-          setBrand={setBrand}
           priceRange={priceRange}
           setPriceRange={setPriceRange}
           category={category}
           setCategory={setCategory}
           handleCategoryChange={handleCategoryChange}
-          handleBrandChange={handleBrandChange}
         />
         {data?.length > 0 ? (
           <>
             <div className="flex flex-col lg:flex-row gap-4 lg:gap-8">
               <div className="hidden lg:block lg:w-80 shrink-0">
                 <FilterSection
-                  brand={brand}
-                  setBrand={setBrand}
                   priceRange={priceRange}
                   setPriceRange={setPriceRange}
                   category={category}
                   setCategory={setCategory}
                   handleCategoryChange={handleCategoryChange}
-                  handleBrandChange={handleBrandChange}
                 />
               </div>
               <div className="flex flex-col justify-center items-center flex-1">

@@ -2,7 +2,7 @@ import React, { useContext, useEffect } from "react";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import Slider from "react-slick";
-import Category from "./Category.jsx";
+
 import { DataContext } from "../context/contexts.jsx";
 
 const Carousel = () => {
@@ -37,7 +37,7 @@ const Carousel = () => {
               <div className="flex flex-col md:flex-row justify-between items-center px-4 sm:px-8 md:px-16 lg:px-20 max-w-6xl mx-auto gap-6 md:gap-10 lg:gap-20 py-8 md:py-16 lg:py-20 md:h-auto">
                 <div className="space-y-2 md:space-y-4 lg:space-y-6 w-full md:w-auto">
                   <h3 className="text-red-500 font-semibold font-sans text-xs sm:text-sm md:text-base">
-                    Powering Your World with the Best in Electronics
+                    Powering Your World with the Best in Zaptro
                   </h3>
                   <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold uppercase line-clamp-2 md:line-clamp-3 md:max-w-sm lg:max-w-xl text-white">
                     {item.title}
@@ -63,7 +63,6 @@ const Carousel = () => {
           );
         })}
       </Slider>
-      <Category />
     </div>
   );
 };

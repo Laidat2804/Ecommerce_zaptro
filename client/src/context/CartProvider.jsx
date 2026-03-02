@@ -1,51 +1,70 @@
 import { useState, useEffect, useRef } from "react";
 import { toast } from "react-toastify";
+import axios from "axios";
 import { CartContext } from "./contexts";
-import { useUser } from "@clerk/clerk-react";
+import { useAuth } from "./AuthContext";
+
+const API_URL = "http://localhost:5000/api/profile";
 
 export const CartProvider = ({ children }) => {
-  const { user, isLoaded } = useUser();
-  const isInitialized = useRef(false);
-  const prevUserIdRef = useRef(null);
+  const { user, token, isLoaded } = useAuth();
   const [cartItem, setCartItem] = useState([]);
+  const [cartLoading, setCartLoading] = useState(false);
+  const prevUserIdRef = useRef(null);
+  const syncTimeoutRef = useRef(null);
 
-  const getCartKey = () => (user ? `cartItem_${user.id}` : null);
-
+  // Fetch cart từ backend khi đăng nhập
   useEffect(() => {
     if (!isLoaded) return;
 
-    // TRƯỜNG HỢP ĐĂNG XUẤT
-    if (!user) {
-      const timeoutId = setTimeout(() => {
-        setCartItem([]);
-        isInitialized.current = false;
-        prevUserIdRef.current = null;
-      }, 0);
-      return () => clearTimeout(timeoutId);
+    if (!user || !token) {
+      setCartItem([]);
+      prevUserIdRef.current = null;
+      return;
     }
 
-    // TRƯỜNG HỢP ĐĂNG NHẬP
-    const currentUserId = user.id;
-    if (prevUserIdRef.current !== currentUserId) {
-      const cartKey = getCartKey();
-      const storedCart = localStorage.getItem(cartKey);
-
-      const timeoutId = setTimeout(() => {
-        setCartItem(storedCart ? JSON.parse(storedCart) : []);
-        isInitialized.current = true;
-      }, 0);
-
-      prevUserIdRef.current = currentUserId;
-      return () => clearTimeout(timeoutId);
+    if (prevUserIdRef.current !== user.id) {
+      prevUserIdRef.current = user.id;
+      fetchCart();
     }
-  }, [user?.id, isLoaded]);
+  }, [user?.id, isLoaded, token]);
 
-  useEffect(() => {
-    const cartKey = getCartKey();
-    if (!isLoaded || !cartKey || !isInitialized.current) return;
+  const fetchCart = async () => {
+    try {
+      setCartLoading(true);
+      const res = await axios.get(`${API_URL}/cart`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setCartItem(res.data || []);
+    } catch (error) {
+      console.error("Fetch cart error:", error);
+    } finally {
+      setCartLoading(false);
+    }
+  };
 
-    localStorage.setItem(cartKey, JSON.stringify(cartItem));
-  }, [cartItem, user?.id, isLoaded]);
+  // Sync cart lên backend (debounced)
+  const syncCartToBackend = (updatedCart) => {
+    if (!token) return;
+    if (syncTimeoutRef.current) clearTimeout(syncTimeoutRef.current);
+
+    syncTimeoutRef.current = setTimeout(async () => {
+      try {
+        await axios.post(
+          `${API_URL}/cart`,
+          {
+            cart: updatedCart.map((item) => ({
+              productId: item.id,
+              quantity: item.quantity,
+            })),
+          },
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+      } catch (error) {
+        console.error("Sync cart error:", error);
+      }
+    }, 500);
+  };
 
   const addToCart = (product, quantityToAdd = 1) => {
     if (!user) {
@@ -62,43 +81,51 @@ export const CartProvider = ({ children }) => {
     }
 
     setCartItem((prev) => {
+      let updated;
       if (existingItem) {
-        return prev.map((item) =>
+        updated = prev.map((item) =>
           item.id === product.id
             ? { ...item, quantity: item.quantity + quantityToAdd }
-            : item,
+            : item
         );
+      } else {
+        updated = [...prev, { ...product, quantity: quantityToAdd }];
       }
-      return [...prev, { ...product, quantity: quantityToAdd }];
+      syncCartToBackend(updated);
+      return updated;
     });
   };
 
   const updateQuantity = (productId, action) => {
-    setCartItem((prev) =>
-      prev
+    setCartItem((prev) => {
+      const updated = prev
         .map((item) => {
           if (item.id === productId) {
             let newQuantity = item.quantity;
-            if (action === "increase") {
-              newQuantity += 1;
-            } else if (action === "decrease") {
-              newQuantity -= 1;
-            }
+            if (action === "increase") newQuantity += 1;
+            else if (action === "decrease") newQuantity -= 1;
             return newQuantity > 0 ? { ...item, quantity: newQuantity } : null;
           }
           return item;
         })
-        .filter((item) => item !== null),
-    );
+        .filter((item) => item !== null);
+      syncCartToBackend(updated);
+      return updated;
+    });
   };
 
   const deleteItem = (productId) => {
-    setCartItem((prev) => prev.filter((item) => item.id !== productId));
+    setCartItem((prev) => {
+      const updated = prev.filter((item) => item.id !== productId);
+      syncCartToBackend(updated);
+      return updated;
+    });
     toast.success("Product removed from cart!");
   };
 
   const clearCart = () => {
     setCartItem([]);
+    syncCartToBackend([]);
     toast.info("Cart cleared!");
   };
 
@@ -109,6 +136,7 @@ export const CartProvider = ({ children }) => {
     updateQuantity,
     deleteItem,
     clearCart,
+    cartLoading,
   };
 
   return (

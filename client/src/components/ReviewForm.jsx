@@ -1,10 +1,11 @@
 import React, { useState } from "react";
 import { Star, Send } from "lucide-react";
 import { toast } from "react-toastify";
-import { useUser, SignInButton } from "@clerk/clerk-react";
+import { Link } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 const ReviewForm = ({ productId, onSubmitReview }) => {
-  const { user, isLoaded } = useUser();
+  const { user, isLoaded } = useAuth();
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -32,7 +33,7 @@ const ReviewForm = ({ productId, onSubmitReview }) => {
     const newReview = {
       id: Date.now(),
       productId,
-      author: user.fullName || user.emailAddresses?.[0]?.emailAddress,
+      author: user.name || user.email,
       rating,
       comment,
       date: new Date().toISOString(),
@@ -58,11 +59,12 @@ const ReviewForm = ({ productId, onSubmitReview }) => {
     return (
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-center">
         <p className="text-gray-700 mb-2">Share your review with us</p>
-        <SignInButton mode="modal">
-          <button className="text-blue-600 font-semibold hover:underline">
-            Sign in to share your review
-          </button>
-        </SignInButton>
+        <Link
+          to="/login"
+          className="text-blue-600 font-semibold hover:underline"
+        >
+          Sign in to share your review
+        </Link>
       </div>
     );
   }

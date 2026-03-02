@@ -5,16 +5,13 @@ import { DataContext } from "../context/contexts";
 const MobileFilter = ({
   openFilter,
   setOpenFilter,
-  brand,
-  setBrand,
   priceRange,
   setPriceRange,
   category,
   setCategory,
-  handleBrandChange,
   handleCategoryChange,
 }) => {
-  const { categoryOnlyData, brandOnlyData } = useContext(DataContext);
+  const { categoryOnlyData } = useContext(DataContext);
 
   const toggleFilter = () => {
     setOpenFilter(!openFilter);
@@ -30,7 +27,7 @@ const MobileFilter = ({
       </div>
       {openFilter ? (
         <div className="bg-gray-100 p-3 md:p-4 lg:hidden text-sm md:text-base rounded-md mt-2">
-          {/* category only data */}
+          {/* Category */}
           <h1 className="mt-3 md:mt-5 font-semibold text-lg md:text-xl">
             Category
           </h1>
@@ -53,24 +50,7 @@ const MobileFilter = ({
               );
             })}
           </div>
-          {/* brand only data */}
-          <h1 className="mt-3 md:mt-5 font-semibold text-lg md:text-xl mb-2 md:mb-3">
-            Brand
-          </h1>
-          <select
-            className="bg-white w-full p-2 text-sm md:text-base border-gray-200 border-2 rounded-md "
-            value={brand}
-            onChange={handleBrandChange}
-          >
-            {brandOnlyData?.map((item, index) => {
-              return (
-                <option key={index} value={item}>
-                  {item?.toUpperCase()}
-                </option>
-              );
-            })}
-          </select>
-          {/* price range  */}
+          {/* Price Range */}
           <h1 className="mt-3 md:mt-5 font-semibold text-lg md:text-xl mb-2 md:mb-3">
             Price Range
           </h1>
@@ -93,7 +73,6 @@ const MobileFilter = ({
             className="bg-red-500 text-white rounded-md px-3 py-1 md:py-1.5 mt-3 md:mt-5 cursor-pointer text-sm md:text-base hover:bg-red-600 transition-colors"
             onClick={() => {
               setCategory("All");
-              setBrand("All");
               setPriceRange([0, 5000]);
               setOpenFilter(false);
             }}

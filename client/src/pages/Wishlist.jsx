@@ -39,9 +39,6 @@ const Wishlist = () => {
                     className="w-full h-48 object-cover cursor-pointer hover:opacity-80 transition-opacity"
                     onClick={() => navigate(`/products/${product.id}`)}
                   />
-                  <div className="absolute top-2 right-2 bg-red-500 text-white px-3 py-1 rounded-full text-sm font-semibold">
-                    {product.discountPercentage}% OFF
-                  </div>
                 </div>
 
                 <div className="p-4">
@@ -52,13 +49,6 @@ const Wishlist = () => {
                   <div className="flex items-center gap-2 mb-4">
                     <span className="text-2xl font-bold text-red-500">
                       ${product.price}
-                    </span>
-                    <span className="text-sm text-gray-500 line-through">
-                      $
-                      {(
-                        product.price /
-                        (1 - product.discountPercentage / 100)
-                      ).toFixed(2)}
                     </span>
                   </div>
 

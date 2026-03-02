@@ -20,12 +20,12 @@ const Footer = () => {
             </h1>
           </Link>
           <p className="mt-2 text-xs md:text-sm">
-            Powering Your World with the Best in Electronics.
+            Powering Your World with the Best in Zaptro.
           </p>
           <p className="text-xs md:text-sm">
-            123 Electronics St, Style City, NY 10001
+            828 Su Van Hanh, District 10, Ho Chi Minh City, Vietnam
           </p>
-          <p className="text-xs md:text-sm">Email: support@Zaptro.com</p>
+          <p className="text-xs md:text-sm">Email: Zaptro@gmail.com</p>
           <p className="text-xs md:text-sm">Phone: (123) 456-7890</p>
         </div>
         {/* customer service link */}

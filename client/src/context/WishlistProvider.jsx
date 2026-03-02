@@ -1,76 +1,117 @@
 import { useState, useEffect, useRef } from "react";
 import { toast } from "react-toastify";
+import axios from "axios";
 import { WishlistContext } from "./contexts";
-import { useUser } from "@clerk/clerk-react";
+import { useAuth } from "./AuthContext";
+
+const API_URL = "http://localhost:5000/api/profile";
+
+// Helper: lấy ID dù object có _id hay id
+const getId = (item) => item._id || item.id;
 
 export const WishlistProvider = ({ children }) => {
-  const { user, isLoaded } = useUser();
-  const isInitialized = useRef(false);
-  const prevUserIdRef = useRef(null);
+  const { user, token, isLoaded } = useAuth();
   const [wishlistItems, setWishlistItems] = useState([]);
+  const [wishlistLoading, setWishlistLoading] = useState(false);
+  const prevUserIdRef = useRef(null);
 
-  const getWishlistKey = () => {
-    return user ? `wishlist_${user.id}` : null;
-  };
-
+  // Fetch wishlist từ backend khi đăng nhập
   useEffect(() => {
     if (!isLoaded) return;
 
-    if (!user) {
-      const timeoutId = setTimeout(() => {
-        setWishlistItems([]);
-        isInitialized.current = false;
-        prevUserIdRef.current = null;
-      }, 0);
-      return () => clearTimeout(timeoutId);
-    }
-
-    const currentUserId = user.id;
-    if (prevUserIdRef.current !== currentUserId) {
-      const wishlistKey = getWishlistKey();
-      const storedWishlist = localStorage.getItem(wishlistKey);
-
-      const timeoutId = setTimeout(() => {
-        setWishlistItems(storedWishlist ? JSON.parse(storedWishlist) : []);
-        isInitialized.current = true;
-      }, 0);
-
-      prevUserIdRef.current = currentUserId;
-      return () => clearTimeout(timeoutId);
-    }
-  }, [user?.id, isLoaded]);
-
-  useEffect(() => {
-    const wishlistKey = getWishlistKey();
-    if (!isLoaded || !wishlistKey || !isInitialized.current) return;
-
-    localStorage.setItem(wishlistKey, JSON.stringify(wishlistItems));
-  }, [wishlistItems, user?.id, isLoaded]);
-
-  const toggleWishlist = (product) => {
-    if (!user) {
-      toast.error("Please sign in to add products to wishlist!");
+    if (!user || !token) {
+      setWishlistItems([]);
+      prevUserIdRef.current = null;
       return;
     }
 
-    const isInList = wishlistItems.some((item) => item.id === product.id);
+    if (prevUserIdRef.current !== user.id) {
+      prevUserIdRef.current = user.id;
+      fetchWishlist();
+    }
+  }, [user?.id, isLoaded, token]);
 
+  const fetchWishlist = async () => {
+    try {
+      setWishlistLoading(true);
+      const res = await axios.get(`${API_URL}/wishlist`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setWishlistItems(res.data || []);
+    } catch (error) {
+      console.error("Fetch wishlist error:", error);
+    } finally {
+      setWishlistLoading(false);
+    }
+  };
+
+  const toggleWishlist = async (product) => {
+    if (!user || !token) {
+      toast.error("Please login first!");
+      return;
+    }
+
+    const productId = getId(product);
+    if (!productId) {
+      console.error("toggleWishlist: no productId found", product);
+      return;
+    }
+
+    const isInList = wishlistItems.some(
+      (item) => getId(item) === productId
+    );
+
+    // Optimistic update UI ngay lập tức
     if (isInList) {
-      setWishlistItems((prev) => prev.filter((item) => item.id !== product.id));
+      setWishlistItems((prev) =>
+        prev.filter((item) => getId(item) !== productId)
+      );
       toast.info("Removed from wishlist");
     } else {
       setWishlistItems((prev) => [...prev, product]);
       toast.success("Added to wishlist ❤️");
     }
+
+    // Sync lên backend
+    try {
+      await axios.post(
+        `${API_URL}/wishlist`,
+        { productId },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+    } catch (error) {
+      console.error("Toggle wishlist error:", error);
+      // Rollback nếu lỗi
+      if (isInList) {
+        setWishlistItems((prev) => [...prev, product]);
+      } else {
+        setWishlistItems((prev) =>
+          prev.filter((item) => getId(item) !== productId)
+        );
+      }
+      toast.error("Failed to update wishlist!");
+    }
   };
 
   const isInWishlist = (productId) => {
-    return wishlistItems.some((item) => item.id === productId);
+    return wishlistItems.some((item) => getId(item) === productId);
   };
 
-  const removeFromWishlist = (productId) => {
-    setWishlistItems((prev) => prev.filter((item) => item.id !== productId));
+  const removeFromWishlist = async (productId) => {
+    setWishlistItems((prev) =>
+      prev.filter((item) => getId(item) !== productId)
+    );
     toast.success("Removed from wishlist");
+
+    try {
+      await axios.post(
+        `${API_URL}/wishlist`,
+        { productId },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+    } catch (error) {
+      console.error("Remove wishlist error:", error);
+    }
   };
 
   const clearWishlist = () => {
@@ -85,6 +126,7 @@ export const WishlistProvider = ({ children }) => {
     isInWishlist,
     removeFromWishlist,
     clearWishlist,
+    wishlistLoading,
   };
 
   return (

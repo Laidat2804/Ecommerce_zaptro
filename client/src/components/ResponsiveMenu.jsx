@@ -1,16 +1,19 @@
-import {
-  UserButton,
-  useUser,
-  SignedOut,
-  SignInButton,
-} from "@clerk/clerk-react";
 import React from "react";
 import { FaUserCircle } from "react-icons/fa";
-import { Link, NavLink } from "react-router-dom";
+import { Link, NavLink, useNavigate } from "react-router-dom";
+import { LogOut } from "lucide-react";
+import { useAuth } from "../context/AuthContext";
 
 const ResponsiveMenu = ({ openNav, setOpenNav }) => {
-  //trả về thông tin người dùng hiện đang đăng nhập
-  const { user } = useUser();
+  const { user, isSignedIn, logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    setOpenNav(false);
+    navigate("/");
+  };
+
   return (
     <div
       className={`${
@@ -20,9 +23,13 @@ const ResponsiveMenu = ({ openNav, setOpenNav }) => {
       <div>
         {user ? (
           <div className="flex items-center justify-start gap-3 mb-8">
-            <UserButton size={50} />
+            <div className="bg-gradient-to-br from-red-500 to-pink-500 rounded-full w-12 h-12 flex items-center justify-center text-white font-bold text-lg shadow-lg">
+              {user?.name?.charAt(0)?.toUpperCase() || "U"}
+            </div>
             <div>
-              <h1 className="text-sm sm:text-base">Hello, {user?.firstName}</h1>
+              <h1 className="text-sm sm:text-base font-semibold">
+                Hello, {user?.name}
+              </h1>
               <h1 className="text-xs text-slate-500">Premium User</h1>
             </div>
           </div>
@@ -37,16 +44,13 @@ const ResponsiveMenu = ({ openNav, setOpenNav }) => {
                 <h1 className="text-xs text-slate-500">Guest User</h1>
               </div>
             </div>
-            <SignedOut>
-              <SignInButton
-                mode="modal"
-                className="w-full bg-linear-to-r from-red-500 to-pink-500 text-white py-2.5 px-4 rounded-lg font-semibold hover:from-red-600 hover:to-pink-600 transition-all duration-300 shadow-md hover:shadow-lg cursor-pointer"
-              >
-                <span className="flex items-center justify-center gap-2">
-                  Sign In Now
-                </span>
-              </SignInButton>
-            </SignedOut>
+            <Link
+              to="/login"
+              onClick={() => setOpenNav(false)}
+              className="block w-full text-center bg-linear-to-r from-red-500 to-pink-500 text-white py-2.5 px-4 rounded-lg font-semibold hover:from-red-600 hover:to-pink-600 transition-all duration-300 shadow-md hover:shadow-lg cursor-pointer"
+            >
+              Đăng nhập
+            </Link>
           </div>
         )}
         <nav className="mt-8 sm:mt-12">
@@ -81,6 +85,16 @@ const ResponsiveMenu = ({ openNav, setOpenNav }) => {
             </Link>
           </ul>
         </nav>
+        {/* Logout button khi đã đăng nhập */}
+        {isSignedIn && (
+          <button
+            onClick={handleLogout}
+            className="mt-8 w-full flex items-center justify-center gap-2 bg-red-50 text-red-600 py-2.5 px-4 rounded-lg font-semibold hover:bg-red-100 transition-colors cursor-pointer"
+          >
+            <LogOut size={18} />
+            Đăng xuất
+          </button>
+        )}
       </div>
     </div>
   );

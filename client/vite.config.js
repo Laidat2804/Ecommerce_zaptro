@@ -12,4 +12,8 @@ export default defineConfig({
       },
     }),
   ],
+  server: {
+    port: 5173, // Ép cứng luôn chạy ở cổng 5173
+    strictPort: true, // Báo lỗi nếu cổng này đang bị chiếm, không cho tự nhảy cổng khác
+  }
 });
