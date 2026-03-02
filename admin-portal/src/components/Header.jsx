@@ -3,8 +3,9 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAdminAuth } from '../context/AdminAuthContext';
 import { useSearch } from '../context/SearchContext';
+import { API_BASE_URL } from '../utils/apiConfig';
 
-const UNREAD_API = 'http://localhost:5000/api/messages/unread-count';
+const UNREAD_API = `${API_BASE_URL}/messages/unread-count`;
 
 export default function Header({ onMenuClick }) {
   const { user, token, logout } = useAdminAuth();

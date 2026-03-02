@@ -1,8 +1,9 @@
 import { createContext, useState, useEffect, useContext } from "react";
+import { API_BASE_URL } from "../utils/apiConfig";
 
 const AdminAuthContext = createContext(null);
 
-const API_URL = "http://localhost:5000/api/auth";
+const API_URL = `${API_BASE_URL}/auth`;
 
 export const AdminAuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);

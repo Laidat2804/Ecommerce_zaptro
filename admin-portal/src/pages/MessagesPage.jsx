@@ -14,8 +14,9 @@ import {
 } from 'lucide-react';
 import { useAdminAuth } from '../context/AdminAuthContext';
 import { useSearch } from '../context/SearchContext';
+import { API_BASE_URL } from '../utils/apiConfig';
 
-const API_URL = 'http://localhost:5000/api/messages';
+const API_URL = `${API_BASE_URL}/messages`;
 const ITEMS_PER_PAGE = 6;
 
 /* ── Summary Card ── */

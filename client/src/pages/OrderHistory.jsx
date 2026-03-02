@@ -5,6 +5,7 @@ import { OrderHistoryContext } from "../context/contexts";
 import { useAuth } from "../context/AuthContext";
 import axios from "axios";
 import { toast } from "react-toastify";
+import { API_BASE_URL } from "../utils/apiConfig";
 
 const statusStyles = {
   Pending: "bg-amber-100 text-amber-800",
@@ -14,7 +15,7 @@ const statusStyles = {
   Canceled: "bg-red-100 text-red-800",
 };
 
-const API_URL = "http://localhost:5000/api/orders";
+const API_URL = `${API_BASE_URL}/orders`;
 
 const OrderHistory = () => {
   const { orders, ordersLoading, setOrders } = useContext(OrderHistoryContext);

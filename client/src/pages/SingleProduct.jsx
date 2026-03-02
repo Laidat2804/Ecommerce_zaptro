@@ -6,8 +6,9 @@ import { IoCartOutline } from "react-icons/io5";
 import Breadcrums from "../components/Breadcums";
 import { CartContext } from "../context/contexts";
 import { AlertTriangle } from "lucide-react";
+import { API_BASE_URL } from "../utils/apiConfig";
 
-const API_URL = "http://localhost:5000/api/products";
+const API_URL = `${API_BASE_URL}/products`;
 
 const SingleProduct = () => {
   const params = useParams();

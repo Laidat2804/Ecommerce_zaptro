@@ -20,8 +20,9 @@ import {
 import { useSearch } from '../context/SearchContext';
 import { useAdminAuth } from '../context/AdminAuthContext';
 import OrderDetailsModal from '../components/OrderDetailsModal';
+import { API_BASE_URL } from '../utils/apiConfig';
 
-const API_URL = 'http://localhost:5000/api/orders';
+const API_URL = `${API_BASE_URL}/orders`;
 const ITEMS_PER_PAGE = 10;
 
 const statusConfig = {

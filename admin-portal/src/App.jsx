@@ -15,6 +15,7 @@ import AdminRoute from './components/AdminRoute';
 import AdminLogin from './pages/AdminLogin';
 import { useAdminAuth } from './context/AdminAuthContext';
 import { useSearch } from './context/SearchContext';
+import { API_BASE_URL } from './utils/apiConfig';
 import {
   DollarSign,
   ShoppingCart,
@@ -32,7 +33,7 @@ function DashboardContent() {
   useEffect(() => {
     const fetchDashboard = async () => {
       try {
-        const res = await fetch('http://localhost:5000/api/orders/dashboard', {
+        const res = await fetch(`${API_BASE_URL}/orders/dashboard`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (res.ok) setDashData(await res.json());

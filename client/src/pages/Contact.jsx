@@ -2,8 +2,9 @@ import React, { useState } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { Loader2, Send } from "lucide-react";
+import { API_BASE_URL } from "../utils/apiConfig";
 
-const API_URL = "http://localhost:5000/api/messages";
+const API_URL = `${API_BASE_URL}/messages`;
 
 const Contact = () => {
   const [formData, setFormData] = useState({ name: "", email: "", message: "" });

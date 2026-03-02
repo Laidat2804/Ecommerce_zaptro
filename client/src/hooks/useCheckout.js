@@ -4,8 +4,9 @@ import { toast } from "react-toastify";
 import axios from "axios";
 import { CartContext, OrderHistoryContext } from "../context/contexts";
 import { useAuth } from "../context/AuthContext";
+import { API_BASE_URL } from "../utils/apiConfig";
 
-const API_URL = "http://localhost:5000/api/orders";
+const API_URL = `${API_BASE_URL}/orders`;
 
 export const useCheckout = () => {
   const navigate = useNavigate();

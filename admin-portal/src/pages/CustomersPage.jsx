@@ -23,8 +23,9 @@ import {
 } from 'lucide-react';
 import { useAdminAuth } from '../context/AdminAuthContext';
 import { useSearch } from '../context/SearchContext';
+import { API_BASE_URL } from '../utils/apiConfig';
 
-const API_URL = 'http://localhost:5000/api/users';
+const API_URL = `${API_BASE_URL}/users`;
 const ITEMS_PER_PAGE = 5;
 
 const avatarGradients = [

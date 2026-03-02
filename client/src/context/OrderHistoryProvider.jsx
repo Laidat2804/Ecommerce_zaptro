@@ -2,8 +2,9 @@ import { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import { useAuth } from "./AuthContext";
 import { OrderHistoryContext } from "./contexts";
+import { API_BASE_URL } from "../utils/apiConfig";
 
-const API_URL = "http://localhost:5000/api/profile";
+const API_URL = `${API_BASE_URL}/profile`;
 
 export const OrderHistoryProvider = ({ children }) => {
   const { user, token, isLoaded } = useAuth();

@@ -3,8 +3,9 @@ import { toast } from "react-toastify";
 import axios from "axios";
 import { CartContext } from "./contexts";
 import { useAuth } from "./AuthContext";
+import { API_BASE_URL } from "../utils/apiConfig";
 
-const API_URL = "http://localhost:5000/api/profile";
+const API_URL = `${API_BASE_URL}/profile`;
 
 export const CartProvider = ({ children }) => {
   const { user, token, isLoaded } = useAuth();
