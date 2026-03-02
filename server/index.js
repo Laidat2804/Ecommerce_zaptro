@@ -10,7 +10,7 @@ const allowedOrigins = [
   'http://localhost:5173', 
   'http://localhost:5174',
   'https://ecommerce-zaptro.vercel.app',       // Link trang khách của bạn
-  'https://ecommerce-zaptro-admin.vercel.app'  // Link trang Admin bạn sắp deploy
+  'https://ecommerce-zaptro-admin.vercel.app/login'  // Link trang Admin bạn sắp deploy
 ];
 
 app.use(cors({
