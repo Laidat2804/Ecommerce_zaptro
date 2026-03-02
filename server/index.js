@@ -46,7 +46,10 @@ app.get('/api', (req, res) => {
 });
 
 // Chạy server
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`🚀 Server đang chạy tại cổng ${PORT}`);
-});
+if (process.env.NODE_ENV !== 'production') {
+  const PORT = process.env.PORT || 5000;
+  app.listen(PORT, () => {
+    console.log(`🚀 Server đang chạy tại cổng ${PORT}`);
+  });
+}
+module.exports = app;
